@@ -19,34 +19,6 @@ var (
 	ErrNotValid = errors.New("Strategy Not valid")
 )
 
-// Field holds the specific transformation. Foreign converts into a Local through the specific transformation. Type is the data type
-type Field struct {
-	Foreign        string `bson:"foreign" json:"foreign"`
-	Local          string `bson:"local" json:"local"`
-	Transformation string `bson:"transformation" json:"transformation"`
-	Type           string `bson:"type" json:"type"`
-	DateTimeFormat string `jbson:"datetimeformat" json:"datetimeformat"`
-}
-
-// Entity holds the struct on what is the external source's entity name and fields
-type Entity struct {
-	Foreign        string            `json:"foreign"`
-	Local          string            `json:"local"`
-	OrderBy        string            `json:"orderby"`
-	Fields         []Field           `json:"fields"`
-	DateTimeFormat string            `json:"datetimeformat"`
-	Status         map[string]string `json:"status"`
-}
-
-// Strategy explains which entities or data we are getting from the source and which transformation nees to happen.
-type Strategy struct {
-	Name           string            `bson:"name" json:"name"`
-	DateTimeFormat string            `bson:"datetimeformat" json:"datetimeformat"`
-	Entities       map[string]Entity `bson:"entities" json:"entities"`
-}
-
-// =============================================================================
-
 // New creates a new strategy struct variable from the json file
 func New() (*Strategy, error) {
 
