@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/ardanlabs/kit/log"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -20,17 +21,15 @@ var (
 )
 
 // New creates a new strategy struct variable from the json file
-func New() (*Strategy, error) {
-
-	//read STRATEGY_CONF env variable
-	strategyFile := os.Getenv("STRATEGY_CONF")
+func New(context interface{}, strategyFile string) (*Strategy, error) {
+	log.Dev(context, "New", "Started: ", strategyFile)
 
 	// validate Strategy file
-	if ok, err := Validate(strategyFile); !ok {
+	if ok, err := Validate(context, strategyFile); !ok {
 		return nil, err
 	}
 
-	strategy, err := Read(strategyFile)
+	strategy, err := Read(context, strategyFile)
 	if err != nil {
 		return nil, err
 	}
@@ -39,17 +38,20 @@ func New() (*Strategy, error) {
 }
 
 // IsEmpty check if the string is empty
-func IsEmpty(fileName string) error {
-	_, err := os.Stat(fileName)
-	// log
-	return err
+func IsEmpty(context interface{}, fileName string) error {
+	if _, err := os.Stat(fileName); err != nil {
+		log.Error(context, "IsEmpty", err, "Completed")
+		return err
+	}
+
+	return nil
 }
 
 // Validate the strategy file that is loaded into STRATEGY_CONF environment variable.
-func Validate(strategyFile string) (bool, error) {
+func Validate(context interface{}, strategyFile string) (bool, error) {
 
 	schemaFile := "file:///" + os.Getenv("GOPATH") + "/src/github.com/coralproject/shelf/internal/sponge/strategy/schema_strategy.json"
-	if err := IsEmpty(strategyFile); err != nil {
+	if err := IsEmpty(context, strategyFile); err != nil {
 		return false, err
 	}
 
@@ -64,7 +66,7 @@ func Validate(strategyFile string) (bool, error) {
 	result, err := schema.Validate(documentLoader)
 	if err != nil {
 		errNotValid := fmt.Errorf("%s strategy not Valid: %v", strategyFile, err)
-		//log
+		log.Error(context, "Validate", err, "Completed")
 		return false, errNotValid
 	}
 
@@ -73,21 +75,22 @@ func Validate(strategyFile string) (bool, error) {
 		for _, err := range result.Errors() {
 			verror = verror + fmt.Sprintf("%v - %s \n", err.Details(), err.Description())
 		}
-		//log
-		return false, errors.New(verror)
+		err = errors.New(verror)
+		log.Error(context, "Validate", err, "Completed")
+		return false, err
 	}
 
 	return true, nil
 }
 
 // Read the strategy file and do the validation into the Strategy struct
-func Read(f string) (*Strategy, error) {
+func Read(context interface{}, f string) (*Strategy, error) {
 
 	var strategy *Strategy
 
 	content, err := ioutil.ReadFile(f)
 	if err != nil {
-		// log
+		log.Error(context, "Validate", err, "Completed")
 		return nil, err
 	}
 

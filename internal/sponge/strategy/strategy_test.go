@@ -19,20 +19,7 @@ func TestNew(t *testing.T) {
 	tests.ResetLog()
 	defer tests.DisplayLog()
 
-	// set STRATEGY_CONF with test string
-	oStrategy := os.Getenv("STRATEGY_CONF")
-
 	strategyTestFile := os.Getenv("GOPATH") + "/src/github.com/coralproject/shelf/internal/sponge/strategy/sfix/strategy_coral_test.json"
-	if err := os.Setenv("STRATEGY_CONF", strategyTestFile); err != nil {
-		t.Fatalf("\t%s\tShould be able to set test strategy configuration string. : %v", tests.Failed, err)
-	}
-
-	defer func() {
-		if err := os.Setenv("STRATEGY_CONF", oStrategy); err != nil {
-			t.Fatalf("\t%s\tShould be able to set back strategy configuration string. : %v", tests.Failed, err)
-		}
-		t.Logf("\t%s\tShould be able to set back strategy configuration string.", tests.Success)
-	}()
 
 	t.Log("Given the need to get a new strategy instance.")
 	{
@@ -41,7 +28,7 @@ func TestNew(t *testing.T) {
 			//----------------------------------------------------------------------
 			// Get the strategy.
 
-			s, err := strategy.New()
+			s, err := strategy.New(tests.Context, strategyTestFile)
 			if err != nil {
 				t.Fatalf("\t%s\tShould be able to get the strategy : %s", tests.Failed, err)
 			}
