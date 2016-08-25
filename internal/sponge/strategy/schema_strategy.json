@@ -1,0 +1,108 @@
+{
+  "type": "object",
+  "title": "Strategy schema",
+  "description": "This is the strategy for doing the mapping between the newsroom's database and the coral one.",
+  "properties": {
+    "Name": {
+      "type": "string",
+      "title": "Name schema.",
+      "description": "Which newsroom or mapping is this strategy for?.",
+      "default": "Newswroom Service 1"
+    },
+    "DateTimeFormat": {
+      "type": "string",
+      "title": "Date Time format.",
+      "description": "Which format is the newsroom using for their date-time data?",
+      "default": "2006-01-02T15:04:05Z07:00"
+    },
+    "Entities": {
+      "type": "object",
+      "title": "Entities schema.",
+      "description": "We define here all the entities that we need to map from foreign source into coral database.",
+      "properties": {
+        "atleastone": {
+          "type": "object",
+          "title": "Atleastone schema.",
+          "description": "The mapping for the entity 'atleastone'.",
+          "properties": {
+            "Foreign": {
+              "type": "string",
+              "title": "Foreign schema.",
+              "description": "The entity in the foreign source.",
+              "default": ""
+            },
+            "Local": {
+              "type": "string",
+              "title": "Local schema.",
+              "description": "The entity in the coral database.",
+              "default": ""
+            },
+            "OrderBy": {
+              "type": "string",
+              "title": "OrderBy schema.",
+              "description": "How to sort out by default the foreign source.",
+              "default": ""
+            },
+            "Fields": {
+              "type": "array",
+              "title": "Fields schema.",
+              "description": "Fields that we are translating with its mapping.",
+              "items": {
+                "type": "object",
+                "title": "items schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "properties": {
+                  "foreign": {
+                    "type": "string",
+                    "title": "Foreign schema.",
+                    "description": ".",
+                    "default": "object.published"
+                  },
+                  "local": {
+                    "type": "string",
+                    "title": "Local schema.",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "date_created"
+                  },
+                  "relation": {
+                    "type": "string",
+                    "title": "Relation schema.",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "ParseTimeDate"
+                  },
+                  "type": {
+                    "type": "string",
+                    "title": "Type schema.",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "timedate"
+                  },
+                  "datetimeformat": {
+                    "type": "string",
+                    "title": "Datetimeformat schema.",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "2006-01-02T15:04:05Z"
+                  }
+                },
+                "required": [
+                  "foreign",
+                  "local",
+                  "relation",
+                  "type"
+                ]
+              }
+            }
+          },
+          "required": [
+            "Foreign",
+            "Local",
+            "Fields"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "Name",
+    "Entities"
+  ]
+}
