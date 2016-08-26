@@ -1,6 +1,11 @@
 package strategy
 
-import validator "gopkg.in/bluesuncorp/validator.v8"
+import (
+	"fmt"
+	"log"
+
+	validator "gopkg.in/bluesuncorp/validator.v8"
+)
 
 //==============================================================================
 
@@ -39,6 +44,7 @@ func (field *Field) Validate() error {
 type Entity struct {
 	Foreign        string            `json:"foreign"`
 	Local          string            `json:"local"`
+	IDField        string            `json:"idfield"`
 	OrderBy        string            `json:"orderby"`
 	Fields         []Field           `json:"fields"`
 	DateTimeFormat string            `json:"datetimeformat"`
@@ -60,6 +66,7 @@ type Strategy struct {
 	Name           string            `bson:"name" json:"name"`
 	DateTimeFormat string            `bson:"datetimeformat" json:"datetimeformat"`
 	Entities       map[string]Entity `bson:"entities" json:"entities"`
+	Version        int               `bson:"version" json:"version"`
 }
 
 // Validate validates a Strategy value with the validator.
@@ -69,4 +76,22 @@ func (strategy *Strategy) Validate() error {
 	}
 
 	return nil
+}
+
+// GetEntity retrieves the entity by its name
+func (strategy Strategy) GetEntity(context interface{}, entityName string) (Entity, error) {
+
+	entity, ok := strategy.Entities[entityName]
+	if !ok {
+		errNotFound := fmt.Errorf("Entity %s Not found.", entityName)
+		log.Fatal(context, "GetEntity", "Not found: %v", errNotFound)
+		return Entity{}, errNotFound
+	}
+
+	return entity, nil
+}
+
+// GetEntities returns a list of the entities defined in the transformations file
+func (strategy Strategy) GetEntities() map[string]Entity {
+	return strategy.Entities
 }

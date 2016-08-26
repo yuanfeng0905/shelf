@@ -1,10 +1,12 @@
 {
   "Name": "New York Times",
   "DateTimeFormat": "2006-01-02 15:04:05",
+  "Version": 1,
   "Entities": {
     "assets": {
       "Foreign": "crnr_asset",
       "Local": "assets",
+      "IDField": "assetid",
       "OrderBy": "assetid",
       "Fields": [
         {
@@ -36,6 +38,7 @@
     "users": {
       "Foreign": "crnr_comment",
       "Local": "users",
+      "IDField": "userid",
       "OrderBy": "userid",
       "Fields": [
         {
@@ -55,6 +58,7 @@
     "comments": {
       "Foreign": "crnr_comment",
       "Local": "comments",
+      "IDField": "commentid",
       "OrderBy": "createdate",
       "Fields": [
         {
