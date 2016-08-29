@@ -15,7 +15,7 @@ import (
 	"github.com/coralproject/shelf/internal/sponge/strategy"
 )
 
-// global variables related to strategy
+// Global variables related to the transformation's strategy
 var (
 	s *strategy.Strategy
 )
