@@ -7,6 +7,9 @@ package fiddler
 import (
 	"fmt"
 
+	"gopkg.in/mgo.v2"
+
+	"github.com/ardanlabs/kit/db"
 	"github.com/ardanlabs/kit/log"
 	"github.com/coralproject/shelf/internal/sponge/item"
 	"github.com/coralproject/shelf/internal/sponge/strategy"
@@ -31,7 +34,30 @@ func Setup(context interface{}, strategyFile string) error {
 
 // =============================================================================
 
-//func BulkTransform(context interface{},  *mgo.Iter) (*mgo.Bulk, error) {}
+// BulkTransform gets an iterator to a Mongo collection, transform them and insert them into the Coral system.
+func BulkTransform(context interface{}, db *db.DB, iter *mgo.Iter, entityName string) error {
+
+	log.Dev(context, "BulkTransform", "Started")
+
+	var row map[string]interface{}
+
+	for iter.Next(&row) {
+		i, err := Transform(context, row, entityName)
+		if err != nil {
+			log.Error(context, "BulkTransform", err, "Transforming the source data %v into an Item.", row)
+			return err
+		}
+
+		err = item.Upsert(context, db, i)
+		if err != nil {
+			log.Error(context, "BulkTransform", err, "Upserting the item %v into the Coral systems.", i)
+			return err
+		}
+	}
+
+	log.Dev(context, "BulkTransform", "Completed")
+	return nil
+}
 
 // Transform transforms a row of data into the coral schema
 func Transform(context interface{}, row map[string]interface{}, entityName string) (*item.Item, error) { //transformation, error
