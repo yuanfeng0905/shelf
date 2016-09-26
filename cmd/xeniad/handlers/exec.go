@@ -8,6 +8,8 @@ import (
 
 	"github.com/ardanlabs/kit/db"
 	"github.com/ardanlabs/kit/web/app"
+	"github.com/cayleygraph/cayley"
+	"github.com/coralproject/shelf/internal/wire"
 	"github.com/coralproject/shelf/internal/xenia"
 	"github.com/coralproject/shelf/internal/xenia/query"
 )
@@ -34,6 +36,38 @@ func (execHandle) Name(c *app.Context) error {
 	return execute(c, set)
 }
 
+// NameOnView runs the specified Set on a view and return results.
+// 200 Success, 400 Bad Request, 404 Not Found, 500 Internal
+func (execHandle) NameOnView(c *app.Context) error {
+
+	// Retrieve the query set.
+	set, err := query.GetByName(c.SessionID, c.Ctx["DB"].(*db.DB), c.Params["name"])
+	if err != nil {
+		if err == query.ErrNotFound {
+			err = app.ErrNotFound
+		}
+		return err
+	}
+
+	// Execute the view.
+	viewParams := wire.ViewParams{
+		ViewName:          c.Params["view"],
+		ItemKey:           c.Params["item"],
+		ResultsCollection: set.Collection,
+	}
+
+	if _, err := wire.Execute(c.SessionID, c.Ctx["DB"].(*db.DB), c.Ctx["Graph"].(*cayley.Handle), viewParams); err != nil {
+		return err
+	}
+
+	// Execute the query.
+	if err := execute(c, set); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Custom runs the provided Set and return results.
 // 200 Success, 400 Bad Request, 404 Not Found, 500 Internal
 func (execHandle) Custom(c *app.Context) error {
@@ -43,6 +77,35 @@ func (execHandle) Custom(c *app.Context) error {
 	}
 
 	return execute(c, set)
+}
+
+// CustomOnView runs the provided Set on a view and return results.
+// 200 Success, 400 Bad Request, 404 Not Found, 500 Internal
+func (execHandle) CustomOnView(c *app.Context) error {
+
+	// Decode the query set.
+	var set *query.Set
+	if err := json.NewDecoder(c.Request.Body).Decode(&set); err != nil {
+		return err
+	}
+
+	// Execute the view.
+	viewParams := wire.ViewParams{
+		ViewName:          c.Params["view"],
+		ItemKey:           c.Params["item"],
+		ResultsCollection: set.Collection,
+	}
+
+	if _, err := wire.Execute(c.SessionID, c.Ctx["DB"].(*db.DB), c.Ctx["Graph"].(*cayley.Handle), viewParams); err != nil {
+		return err
+	}
+
+	// Execute the query.
+	if err := execute(c, set); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //==============================================================================
